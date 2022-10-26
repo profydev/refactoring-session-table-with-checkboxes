@@ -1,6 +1,13 @@
 import classes from "./Table.module.css";
 
-function Table(props) {
+function Table({
+  data,
+  checkedState,
+  handleSelectDeselectAll,
+  selectDeselectAllIsChecked,
+  numCheckboxesSelected,
+  handleOnChange,
+}) {
   return (
     <table className={classes.table}>
       <thead>
@@ -12,13 +19,13 @@ function Table(props) {
               id={"custom-checkbox-selectDeselectAll"}
               name={"custom-checkbox-selectDeselectAll"}
               value={"custom-checkbox-selectDeselectAll"}
-              checked={props.selectDeselectAllIsChecked}
-              onChange={props.handleSelectDeselectAll}
+              checked={selectDeselectAllIsChecked}
+              onChange={handleSelectDeselectAll}
             />
           </th>
           <th className={classes.numChecked}>
-            {props.numCheckboxesSelected
-              ? `Selected ${props.numCheckboxesSelected}`
+            {numCheckboxesSelected
+              ? `Selected ${numCheckboxesSelected}`
               : "None selected"}
           </th>
         </tr>
@@ -31,9 +38,9 @@ function Table(props) {
       </thead>
 
       <tbody>
-        {props.data.map(({ name, message, status }, index) => {
+        {data.map(({ id, name, message, status }, index) => {
           let issueIsOpen = status === "open";
-          let onClick = issueIsOpen ? () => props.handleOnChange(index) : null;
+          let onClick = issueIsOpen ? () => handleOnChange(id) : null;
           let stylesTr = issueIsOpen
             ? classes.openIssue
             : classes.resolvedIssue;
@@ -41,7 +48,7 @@ function Table(props) {
           return (
             <tr
               className={stylesTr}
-              style={props.checkedState[index]}
+              style={{ backgroundColor: checkedState[id] ? "#eee" : "#fff" }}
               key={index}
               onClick={onClick}
             >
@@ -53,8 +60,9 @@ function Table(props) {
                     id={`custom-checkbox-${index}`}
                     name={name}
                     value={name}
-                    checked={props.checkedState[index].checked}
-                    onChange={() => props.handleOnChange(index)}
+                    checked={!!checkedState[id]}
+                    onChange={() => handleOnChange(id)}
+                    disabled={!issueIsOpen}
                   />
                 ) : (
                   <input

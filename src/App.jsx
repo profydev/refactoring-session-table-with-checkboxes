@@ -1,38 +1,38 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Table from "./Table";
 import data from "./data";
+import { useMemo } from "react";
 
 function App() {
-  const [checkedState, setCheckedState] = useState(
-    new Array(data.length).fill({ checked: false, backgroundColor: "#ffffff" })
+  const [checkedState, setCheckedState] = useState({});
+  const openIssues = useMemo(
+    () =>
+      data.reduce((tmp, { id, status }) => {
+        if (status !== "open") {
+          return tmp;
+        }
+        return {
+          ...tmp,
+          [id]: true,
+        };
+      }, {}),
+    [data]
   );
   const [selectDeselectAllIsChecked, setSelectDeselectAllIsChecked] =
     useState(false);
   const [numCheckboxesSelected, setNumCheckboxesSelected] = useState(0);
 
-  const handleOnChange = (position) => {
-    const updatedCheckedState = checkedState.map((element, index) => {
-      if (position === index) {
-        return {
-          ...element,
-          checked: !element.checked,
-          backgroundColor: element.checked ? "#ffffff" : "#eeeeee",
-        };
-      }
-      return element;
-    });
+  const handleOnChange = (id) => {
+    const updatedCheckedState = { ...checkedState };
+    if (updatedCheckedState[id]) {
+      delete updatedCheckedState[id];
+    } else {
+      updatedCheckedState[id] = true;
+    }
     setCheckedState(updatedCheckedState);
 
-    const totalSelected = updatedCheckedState
-      .map((element) => element.checked)
-      .reduce((sum, currentState, index) => {
-        if (currentState) {
-          return sum + data[index].value;
-        }
-        return sum;
-      }, 0);
+    const totalSelected = Object.keys(updatedCheckedState).length;
     setNumCheckboxesSelected(totalSelected);
-
     handleIndeterminateCheckbox(totalSelected);
   };
 
@@ -40,23 +40,17 @@ function App() {
     const indeterminateCheckbox = document.getElementById(
       "custom-checkbox-selectDeselectAll"
     );
-    let count = 0;
-
-    data.forEach((element) => {
-      if (element.status === "open") {
-        count += 1;
-      }
-    });
+    const numOpenIssues = Object.keys(openIssues).length;
 
     if (total === 0) {
       indeterminateCheckbox.indeterminate = false;
       setSelectDeselectAllIsChecked(false);
     }
-    if (total > 0 && total < count) {
+    if (total > 0 && total < numOpenIssues) {
       indeterminateCheckbox.indeterminate = true;
       setSelectDeselectAllIsChecked(false);
     }
-    if (total === count) {
+    if (total === numOpenIssues) {
       indeterminateCheckbox.indeterminate = false;
       setSelectDeselectAllIsChecked(true);
     }
@@ -65,30 +59,15 @@ function App() {
   const handleSelectDeselectAll = (event) => {
     let { checked } = event.target;
 
-    const allTrueArray = [];
-    data.forEach((element) => {
-      if (element.status === "open") {
-        allTrueArray.push({ checked: true, backgroundColor: "#eeeeee" });
-      } else {
-        allTrueArray.push({ checked: false, backgroundColor: "#ffffff" });
-      }
-    });
+    if (checked) {
+      setCheckedState({ ...openIssues });
+      const totalSelected = Object.keys(updatedCheckedState).length;
+      setNumCheckboxesSelected(totalSelected);
+    } else {
+      setCheckedState({});
+      setNumCheckboxesSelected(0);
+    }
 
-    const allFalseArray = new Array(data.length).fill({
-      checked: false,
-      backgroundColor: "#ffffff",
-    });
-    checked ? setCheckedState(allTrueArray) : setCheckedState(allFalseArray);
-
-    const totalSelected = (checked ? allTrueArray : allFalseArray)
-      .map((element) => element.checked)
-      .reduce((sum, currentState, index) => {
-        if (currentState && data[index].status === "open") {
-          return sum + data[index].value;
-        }
-        return sum;
-      }, 0);
-    setNumCheckboxesSelected(totalSelected);
     setSelectDeselectAllIsChecked((prevState) => !prevState);
   };
 
