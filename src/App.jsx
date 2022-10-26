@@ -1,38 +1,32 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Table from "./Table";
-import data from "./data";
-import { useMemo } from "react";
+import issues from "./issues";
+
+function mapOpenIssues(issues) {
+  return issues.reduce((tmp, { id, status }) => {
+    if (status !== "open") {
+      return tmp;
+    }
+    return {
+      ...tmp,
+      [id]: true,
+    };
+  }, {});
+}
 
 function App() {
-  const [checkedState, setCheckedState] = useState({});
-  const openIssues = useMemo(
-    () =>
-      data.reduce((tmp, { id, status }) => {
-        if (status !== "open") {
-          return tmp;
-        }
-        return {
-          ...tmp,
-          [id]: true,
-        };
-      }, {}),
-    [data]
-  );
-  const [selectDeselectAllIsChecked, setSelectDeselectAllIsChecked] =
-    useState(false);
-  const [numCheckboxesSelected, setNumCheckboxesSelected] = useState(0);
+  const [idToChecked, setIdToChecked] = useState({});
+  const idToIsOpen = useMemo(() => mapOpenIssues(issues), [issues]);
 
   const handleOnChange = (id) => {
-    const updatedCheckedState = { ...checkedState };
+    const updatedCheckedState = { ...idToChecked };
     if (updatedCheckedState[id]) {
       delete updatedCheckedState[id];
     } else {
       updatedCheckedState[id] = true;
     }
-    setCheckedState(updatedCheckedState);
-
+    setIdToChecked(updatedCheckedState);
     const totalSelected = Object.keys(updatedCheckedState).length;
-    setNumCheckboxesSelected(totalSelected);
     handleIndeterminateCheckbox(totalSelected);
   };
 
@@ -40,19 +34,16 @@ function App() {
     const indeterminateCheckbox = document.getElementById(
       "custom-checkbox-selectDeselectAll"
     );
-    const numOpenIssues = Object.keys(openIssues).length;
+    const numOpenIssues = Object.keys(idToIsOpen).length;
 
     if (total === 0) {
       indeterminateCheckbox.indeterminate = false;
-      setSelectDeselectAllIsChecked(false);
     }
     if (total > 0 && total < numOpenIssues) {
       indeterminateCheckbox.indeterminate = true;
-      setSelectDeselectAllIsChecked(false);
     }
     if (total === numOpenIssues) {
       indeterminateCheckbox.indeterminate = false;
-      setSelectDeselectAllIsChecked(true);
     }
   };
 
@@ -60,25 +51,19 @@ function App() {
     let { checked } = event.target;
 
     if (checked) {
-      setCheckedState({ ...openIssues });
-      const totalSelected = Object.keys(updatedCheckedState).length;
-      setNumCheckboxesSelected(totalSelected);
+      setIdToChecked({ ...idToIsOpen });
     } else {
-      setCheckedState({});
-      setNumCheckboxesSelected(0);
+      setIdToChecked({});
     }
-
-    setSelectDeselectAllIsChecked((prevState) => !prevState);
   };
 
   return (
     <Table
-      data={data}
-      selectDeselectAllIsChecked={selectDeselectAllIsChecked}
+      issues={issues}
       handleSelectDeselectAll={handleSelectDeselectAll}
-      numCheckboxesSelected={numCheckboxesSelected}
       handleOnChange={handleOnChange}
-      checkedState={checkedState}
+      idToChecked={idToChecked}
+      numOpenIssues={Object.keys(idToIsOpen).length}
     />
   );
 }

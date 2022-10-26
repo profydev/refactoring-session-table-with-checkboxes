@@ -1,13 +1,13 @@
 import classes from "./Table.module.css";
 
 function Table({
-  data,
-  checkedState,
+  issues,
+  idToChecked,
   handleSelectDeselectAll,
-  selectDeselectAllIsChecked,
-  numCheckboxesSelected,
+  numOpenIssues,
   handleOnChange,
 }) {
+  const numChecked = Object.keys(idToChecked).length;
   return (
     <table className={classes.table}>
       <thead>
@@ -19,14 +19,12 @@ function Table({
               id={"custom-checkbox-selectDeselectAll"}
               name={"custom-checkbox-selectDeselectAll"}
               value={"custom-checkbox-selectDeselectAll"}
-              checked={selectDeselectAllIsChecked}
+              checked={numChecked === numOpenIssues}
               onChange={handleSelectDeselectAll}
             />
           </th>
           <th className={classes.numChecked}>
-            {numCheckboxesSelected
-              ? `Selected ${numCheckboxesSelected}`
-              : "None selected"}
+            {numChecked ? `Selected ${numChecked}` : "None selected"}
           </th>
         </tr>
         <tr>
@@ -38,7 +36,7 @@ function Table({
       </thead>
 
       <tbody>
-        {data.map(({ id, name, message, status }, index) => {
+        {issues.map(({ id, name, message, status }, index) => {
           let issueIsOpen = status === "open";
           let onClick = issueIsOpen ? () => handleOnChange(id) : null;
           let stylesTr = issueIsOpen
@@ -47,9 +45,9 @@ function Table({
 
           return (
             <tr
+              key={id}
               className={stylesTr}
-              style={{ backgroundColor: checkedState[id] ? "#eee" : "#fff" }}
-              key={index}
+              style={{ backgroundColor: idToChecked[id] ? "#eee" : "#fff" }}
               onClick={onClick}
             >
               <td>
@@ -60,7 +58,7 @@ function Table({
                     id={`custom-checkbox-${index}`}
                     name={name}
                     value={name}
-                    checked={!!checkedState[id]}
+                    checked={!!idToChecked[id]}
                     onChange={() => handleOnChange(id)}
                     disabled={!issueIsOpen}
                   />
