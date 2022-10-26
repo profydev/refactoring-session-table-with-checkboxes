@@ -1,13 +1,54 @@
+import { useRef, useState, useMemo } from "react";
 import classes from "./Table.module.css";
 
-function Table({
-  issues,
-  idToChecked,
-  handleSelectDeselectAll,
-  numOpenIssues,
-  handleOnChange,
-}) {
+function mapOpenIssues(issues) {
+  return issues.reduce((tmp, { id, status }) => {
+    if (status !== "open") {
+      return tmp;
+    }
+    return {
+      ...tmp,
+      [id]: true,
+    };
+  }, {});
+}
+
+function Table({ issues }) {
+  const topCheckbox = useRef();
+  const [idToChecked, setIdToChecked] = useState({});
+  const idToIsOpen = useMemo(() => mapOpenIssues(issues), [issues]);
+
   const numChecked = Object.keys(idToChecked).length;
+  const numOpenIssues = Object.keys(idToIsOpen).length;
+
+  const handleOnChange = (id) => {
+    const updatedCheckedState = { ...idToChecked };
+    if (updatedCheckedState[id]) {
+      delete updatedCheckedState[id];
+    } else {
+      updatedCheckedState[id] = true;
+    }
+    setIdToChecked(updatedCheckedState);
+
+    // update indeterminate state of top checkbox
+    const updatedNumChecked = Object.keys(updatedCheckedState).length;
+    if (updatedNumChecked === 0) {
+      topCheckbox.current.indeterminate = false;
+    } else if (updatedNumChecked === numOpenIssues) {
+      topCheckbox.current.indeterminate = false;
+    } else {
+      topCheckbox.current.indeterminate = true;
+    }
+  };
+
+  const handleSelectDeselectAll = (event) => {
+    if (event.target.checked) {
+      setIdToChecked({ ...idToIsOpen });
+    } else {
+      setIdToChecked({});
+    }
+  };
+
   return (
     <table className={classes.table}>
       <thead>
@@ -16,6 +57,7 @@ function Table({
             <input
               className={classes.checkbox}
               type={"checkbox"}
+              ref={topCheckbox}
               id={"custom-checkbox-selectDeselectAll"}
               name={"custom-checkbox-selectDeselectAll"}
               value={"custom-checkbox-selectDeselectAll"}
