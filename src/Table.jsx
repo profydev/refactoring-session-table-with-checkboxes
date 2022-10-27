@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import classes from "./Table.module.css";
 
 function Table({ issues }) {
   const [checkedById, setCheckedById] = useState(new Set());
-  const [selectDeselectAllIsChecked, setSelectDeselectAllIsChecked] =
-    useState(false);
-  const [numCheckboxesSelected, setNumCheckboxesSelected] = useState(0);
+
+  const openIssues = useMemo(
+    () => issues.filter(({ status }) => status === "open"),
+    [issues]
+  );
+  const numOpenIssues = openIssues.length;
+  const numCheckedIssues = checkedById.size;
 
   const handleOnChange = (id) => {
     const updatedCheckedById = new Set(checkedById);
@@ -18,7 +22,6 @@ function Table({ issues }) {
     setCheckedById(updatedCheckedById);
 
     const totalSelected = updatedCheckedById.size;
-    setNumCheckboxesSelected(totalSelected);
     handleIndeterminateCheckbox(totalSelected);
   };
 
@@ -36,30 +39,22 @@ function Table({ issues }) {
 
     if (total === 0) {
       indeterminateCheckbox.indeterminate = false;
-      setSelectDeselectAllIsChecked(false);
     }
     if (total > 0 && total < count) {
       indeterminateCheckbox.indeterminate = true;
-      setSelectDeselectAllIsChecked(false);
     }
     if (total === count) {
       indeterminateCheckbox.indeterminate = false;
-      setSelectDeselectAllIsChecked(true);
     }
   };
 
   const handleSelectDeselectAll = (event) => {
     if (event.target.checked) {
-      const openIssues = issues.filter(({ status }) => status === "open");
       const allChecked = new Set(openIssues.map(({ id }) => id));
       setCheckedById(allChecked);
-      setNumCheckboxesSelected(allChecked.size);
     } else {
       setCheckedById(new Set());
-      setNumCheckboxesSelected(0);
     }
-
-    setSelectDeselectAllIsChecked((prevState) => !prevState);
   };
 
   return (
@@ -73,13 +68,13 @@ function Table({ issues }) {
               id={"custom-checkbox-selectDeselectAll"}
               name={"custom-checkbox-selectDeselectAll"}
               value={"custom-checkbox-selectDeselectAll"}
-              checked={selectDeselectAllIsChecked}
+              checked={numOpenIssues === numCheckedIssues}
               onChange={handleSelectDeselectAll}
             />
           </th>
           <th className={classes.numChecked}>
-            {numCheckboxesSelected
-              ? `Selected ${numCheckboxesSelected}`
+            {numCheckedIssues
+              ? `Selected ${numCheckedIssues}`
               : "None selected"}
           </th>
         </tr>
