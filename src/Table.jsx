@@ -1,12 +1,13 @@
-import "./Table.css";
+import classes from "./Table.module.css";
 
 function Table(props) {
   return (
-    <table>
+    <table className={classes.table}>
       <thead>
         <tr>
           <th>
             <input
+              className={classes.checkbox}
               type={"checkbox"}
               id={"custom-checkbox-selectDeselectAll"}
               name={"custom-checkbox-selectDeselectAll"}
@@ -15,7 +16,7 @@ function Table(props) {
               onChange={props.handleSelectDeselectAll}
             />
           </th>
-          <th className={"table--numCheckboxesSelected"}>
+          <th className={classes.numChecked}>
             {props.numCheckboxesSelected
               ? `Selected ${props.numCheckboxesSelected}`
               : "None selected"}
@@ -34,8 +35,8 @@ function Table(props) {
           let issueIsOpen = status === "open";
           let onClick = issueIsOpen ? () => props.handleOnChange(index) : null;
           let stylesTr = issueIsOpen
-            ? "table--trAvailable"
-            : "table--trScheduled";
+            ? classes.openIssue
+            : classes.resolvedIssue;
 
           return (
             <tr
@@ -47,6 +48,7 @@ function Table(props) {
               <td>
                 {issueIsOpen ? (
                   <input
+                    className={classes.checkbox}
                     type={"checkbox"}
                     id={`custom-checkbox-${index}`}
                     name={name}
@@ -55,16 +57,20 @@ function Table(props) {
                     onChange={() => props.handleOnChange(index)}
                   />
                 ) : (
-                  <input type={"checkbox"} disabled />
+                  <input
+                    className={classes.checkbox}
+                    type={"checkbox"}
+                    disabled
+                  />
                 )}
               </td>
               <td>{name}</td>
               <td>{message}</td>
               <td>
                 {issueIsOpen ? (
-                  <span className={"table--greenCircle"} />
+                  <span className={classes.greenCircle} />
                 ) : (
-                  <span className={"table--redCircle"} />
+                  <span className={classes.redCircle} />
                 )}
               </td>
             </tr>

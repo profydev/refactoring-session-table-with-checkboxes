@@ -1,50 +1,49 @@
-table {
+.table {
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
   border-collapse: collapse;
   width: 100%;
 }
-thead > tr {
+
+.table thead > tr {
   border: solid 2px #eeeeee;
 }
 
-th {
-  font-family: "NeueHaasGrotesk-Bold", sans-serif;
+.table th {
   padding: 1.5rem 0;
 }
 
-tr {
+.table tr {
   text-align: left;
 }
 
-td {
-  font-family: "NeueHaasGrotesk-Regular", sans-serif;
+.table td {
   padding: 1.5rem 0;
 }
 
-input {
+.checkbox {
   height: 1.25rem;
   margin-left: 1rem;
   width: 1.25rem;
 }
 
-.table--numCheckboxesSelected {
+.numChecked {
   min-width: 8rem;
 }
 
-.table--trAvailable {
+.openIssue {
   cursor: pointer;
 }
 
-.table--trAvailable:hover {
+.openIssue:hover {
   background-color: #eeeeee !important;
 }
 
-.table--trScheduled {
+.resolvedIssue {
   color: #bdbdbd;
   cursor: not-allowed;
 }
 
-.table--greenCircle {
+.greenCircle {
   background-color: #82d032;
   border-radius: 50%;
   display: inline-block;
@@ -54,7 +53,7 @@ input {
   margin-right: 8px;
 }
 
-.table--redCircle {
+.redCircle {
   background-color: red;
   border-radius: 50%;
   display: inline-block;
