@@ -1,5 +1,4 @@
-import { useRef } from "react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import classes from "./Table.module.css";
 
 function Table({ issues }) {
@@ -42,12 +41,9 @@ function Table({ issues }) {
         <tr>
           <th>
             <input
+              type="checkbox"
               ref={topCheckbox}
               className={classes.checkbox}
-              type={"checkbox"}
-              id={"custom-checkbox-selectDeselectAll"}
-              name={"custom-checkbox-selectDeselectAll"}
-              value={"custom-checkbox-selectDeselectAll"}
               checked={numOpenIssues === numCheckedIssues}
               onChange={handleSelectDeselectAll}
             />
@@ -67,47 +63,33 @@ function Table({ issues }) {
       </thead>
 
       <tbody>
-        {issues.map(({ id, name, message, status }, index) => {
-          let issueIsOpen = status === "open";
-          let onClick = issueIsOpen ? () => handleOnChange(id) : null;
-          let stylesTr = issueIsOpen
-            ? classes.openIssue
-            : classes.resolvedIssue;
-
+        {issues.map(({ id, name, message, status }) => {
+          const isIssueOpen = status === "open";
           return (
             <tr
               key={id}
-              className={stylesTr}
+              className={
+                isIssueOpen ? classes.openIssue : classes.resolvedIssue
+              }
               style={{ backgroundColor: checkedById.has(id) ? "#eee" : "#fff" }}
-              onClick={onClick}
             >
               <td>
-                {issueIsOpen ? (
-                  <input
-                    className={classes.checkbox}
-                    type={"checkbox"}
-                    id={`custom-checkbox-${index}`}
-                    name={name}
-                    value={name}
-                    checked={checkedById.has(id)}
-                    onChange={() => handleOnChange(id)}
-                  />
-                ) : (
-                  <input
-                    className={classes.checkbox}
-                    type={"checkbox"}
-                    disabled
-                  />
-                )}
+                <input
+                  type="checkbox"
+                  className={classes.checkbox}
+                  checked={checkedById.has(id)}
+                  disabled={!isIssueOpen}
+                  onChange={() => handleOnChange(id)}
+                />
               </td>
               <td>{name}</td>
               <td>{message}</td>
               <td>
-                {issueIsOpen ? (
-                  <span className={classes.greenCircle} />
-                ) : (
-                  <span className={classes.redCircle} />
-                )}
+                <span
+                  className={
+                    isIssueOpen ? classes.greenCircle : classes.redCircle
+                  }
+                />
               </td>
             </tr>
           );
@@ -116,4 +98,5 @@ function Table({ issues }) {
     </table>
   );
 }
+
 export default Table;
