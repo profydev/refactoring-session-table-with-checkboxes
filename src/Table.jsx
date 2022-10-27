@@ -1,7 +1,9 @@
+import { useRef } from "react";
 import { useMemo, useState } from "react";
 import classes from "./Table.module.css";
 
 function Table({ issues }) {
+  const topCheckbox = useRef();
   const [checkedById, setCheckedById] = useState(new Set());
 
   const openIssues = useMemo(
@@ -18,34 +20,11 @@ function Table({ issues }) {
     } else {
       updatedCheckedById.add(id);
     }
-
     setCheckedById(updatedCheckedById);
 
-    const totalSelected = updatedCheckedById.size;
-    handleIndeterminateCheckbox(totalSelected);
-  };
-
-  const handleIndeterminateCheckbox = (total) => {
-    const indeterminateCheckbox = document.getElementById(
-      "custom-checkbox-selectDeselectAll"
-    );
-    let count = 0;
-
-    issues.forEach((element) => {
-      if (element.status === "open") {
-        count += 1;
-      }
-    });
-
-    if (total === 0) {
-      indeterminateCheckbox.indeterminate = false;
-    }
-    if (total > 0 && total < count) {
-      indeterminateCheckbox.indeterminate = true;
-    }
-    if (total === count) {
-      indeterminateCheckbox.indeterminate = false;
-    }
+    const updatedNumChecked = updatedCheckedById.size;
+    topCheckbox.current.indeterminate =
+      updatedNumChecked > 0 && updatedNumChecked < numOpenIssues;
   };
 
   const handleSelectDeselectAll = (event) => {
@@ -63,6 +42,7 @@ function Table({ issues }) {
         <tr>
           <th>
             <input
+              ref={topCheckbox}
               className={classes.checkbox}
               type={"checkbox"}
               id={"custom-checkbox-selectDeselectAll"}
