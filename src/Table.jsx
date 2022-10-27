@@ -55,12 +55,9 @@ function Table({ issues }) {
         <tr>
           <th>
             <input
-              className={classes.checkbox}
-              type={"checkbox"}
               ref={topCheckbox}
-              id={"custom-checkbox-selectDeselectAll"}
-              name={"custom-checkbox-selectDeselectAll"}
-              value={"custom-checkbox-selectDeselectAll"}
+              className={classes.checkbox}
+              type="checkbox"
               checked={numChecked === numOpenIssues}
               onChange={handleSelectDeselectAll}
             />
@@ -78,39 +75,24 @@ function Table({ issues }) {
       </thead>
 
       <tbody>
-        {issues.map(({ id, name, message, status }, index) => {
+        {issues.map(({ id, name, message, status }) => {
           let issueIsOpen = status === "open";
-          let onClick = issueIsOpen ? () => handleOnChange(id) : null;
-          let stylesTr = issueIsOpen
-            ? classes.openIssue
-            : classes.resolvedIssue;
-
           return (
             <tr
               key={id}
-              className={stylesTr}
+              className={
+                issueIsOpen ? classes.openIssue : classes.resolvedIssue
+              }
               style={{ backgroundColor: idToChecked[id] ? "#eee" : "#fff" }}
-              onClick={onClick}
             >
               <td>
-                {issueIsOpen ? (
-                  <input
-                    className={classes.checkbox}
-                    type={"checkbox"}
-                    id={`custom-checkbox-${index}`}
-                    name={name}
-                    value={name}
-                    checked={!!idToChecked[id]}
-                    onChange={() => handleOnChange(id)}
-                    disabled={!issueIsOpen}
-                  />
-                ) : (
-                  <input
-                    className={classes.checkbox}
-                    type={"checkbox"}
-                    disabled
-                  />
-                )}
+                <input
+                  className={classes.checkbox}
+                  type="checkbox"
+                  checked={!!idToChecked[id]}
+                  onChange={() => handleOnChange(id)}
+                  disabled={!issueIsOpen}
+                />
               </td>
               <td>{name}</td>
               <td>{message}</td>
